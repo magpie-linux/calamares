@@ -1,4 +1,5 @@
-### Calamares: MagpieOS Installer
+### Calamares: Distribution-independent installer framework
+#### Version: 3.2.12
 ---------
 
 ### Dependencies
