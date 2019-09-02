@@ -1,0 +1,6 @@
+# Syntax is YAML 1.2
+---
+type:       "job"
+name:       "magpie_permission_fix"
+interface:  "python"
+script:     "main.py"
