@@ -1,5 +1,5 @@
 ### Calamares: Distribution-independent installer framework
-#### Version: 3.2.12
+#### Version: 3.2.12 [Testing]
 ---------
 
 ### Dependencies
