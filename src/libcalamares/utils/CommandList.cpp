@@ -36,7 +36,7 @@ static CommandLine
 get_variant_object( const QVariantMap& m )
 {
     QString command = CalamaresUtils::getString( m, "command" );
-    int timeout = CalamaresUtils::getInteger( m, "timeout", -1 );
+    qint64 timeout = CalamaresUtils::getInteger( m, "timeout", -1 );
 
     if ( !command.isEmpty() )
     {
@@ -131,8 +131,8 @@ findInCommands( const CommandList& l, const QString& needle )
 Calamares::JobResult
 CommandList::run()
 {
-    QLatin1Literal rootMagic( "@@ROOT@@" );
-    QLatin1Literal userMagic( "@@USER@@" );
+    QLatin1String rootMagic( "@@ROOT@@" );
+    QLatin1String userMagic( "@@USER@@" );
 
     System::RunLocation location = m_doChroot ? System::RunLocation::RunInTarget : System::RunLocation::RunInHost;
 

@@ -25,6 +25,9 @@
 #   SKIP_MODULES    : a space or semicolon-separated list of directory names
 #                     under src/modules that should not be built.
 #   USE_<foo>       : fills in SKIP_MODULES for modules called <foo>-<something>
+#   WITH_<foo>      : try to enable <foo> (these usually default to ON). For
+#                     a list of WITH_<foo> grep CMakeCache.txt after running
+#                     CMake once.
 #   BUILD_<foo>     : choose additional things to build
 #   DEBUG_<foo>     : special developer flags for debugging
 #
@@ -37,7 +40,7 @@
 
 cmake_minimum_required( VERSION 3.3 FATAL_ERROR )
 project( CALAMARES
-    VERSION 3.2.12
+    VERSION 3.2.14
     LANGUAGES C CXX )
 
 set( CALAMARES_VERSION_RC 0 )  # Set to 0 during release cycle, 1 during development
@@ -105,14 +108,14 @@ set( CALAMARES_DESCRIPTION_SUMMARY
 #       copy these four lines to four backup lines, add "p", and then update
 #       the original four lines with the current translations).
 #
-# Total 60 languages
-set( _tx_complete ca cs_CZ da de fi_FI fr he hi hr hu ja ko lt
-    pt_BR sq tr_TR zh_TW )
-set( _tx_good ast en_GB es es_MX et gl id it_IT nl pl pt_PT ru sk
-    zh_CN )
-set( _tx_ok ar bg el es_PR eu is mr nb ro sl sr sr@latin sv th uk )
-set( _tx_incomplete be ca@valencia eo fa fr_CH gu kk kn lo mk ne_NP
-    ur uz )
+# Total 61 languages
+set( _tx_complete ca cs_CZ da fi_FI he hr ja lt pt_BR sq )
+set( _tx_good ast de es es_MX et fr gl hi hu id it_IT ko nl pl
+    pt_PT ru sk tr_TR zh_TW )
+set( _tx_ok ar be bg el en_GB es_PR eu is ml mr nb ro sl sr
+    sr@latin sv th uk zh_CN )
+set( _tx_incomplete ca@valencia eo fa fr_CH gu kk kn lo mk ne_NP ur
+    uz )
 
 ### Required versions
 #
@@ -195,6 +198,7 @@ if( CMAKE_CXX_COMPILER_ID MATCHES "Clang" )
         -Wno-missing-prototypes
         -Wno-documentation-unknown-command
         -Wno-unknown-warning-option
+        -Werror=return-type
     )
         string( APPEND CMAKE_CXX_FLAGS " ${CLANG_WARNINGS}" )
     endforeach()
@@ -261,6 +265,8 @@ if( Qt5_VERSION VERSION_GREATER 5.12.1 )
         list( APPEND _tx_ok "eo" )
     endif()
 endif()
+# Optional Qt parts
+find_package( Qt5DBus CONFIG )
 
 find_package( YAMLCPP ${YAMLCPP_VERSION} REQUIRED )
 if( INSTALL_POLKIT )
@@ -291,7 +297,14 @@ if( ECM_FOUND )
     include(KDEInstallDirs)
 endif()
 
-find_package( KF5 COMPONENTS CoreAddons Crash )
+find_package( KF5 QUIET COMPONENTS CoreAddons Crash )
+set_package_properties(
+    KF5::CoreAddons PROPERTIES
+    TYPE REQUIRED
+    DESCRIPTION "Classes built on QtCore for About Data"
+    URL "https://api.kde.org/frameworks/kcoreaddons/"
+    PURPOSE "About Calamares"
+)
 if( NOT KF5Crash_FOUND )
     set( WITH_KF5Crash OFF )
 endif()
@@ -590,10 +603,25 @@ add_custom_target( uninstall
 
 ### CMAKE SUMMARY REPORT
 #
-feature_summary(WHAT ALL)
-
 get_directory_property( SKIPPED_MODULES
     DIRECTORY src/modules
     DEFINITION LIST_SKIPPED_MODULES
 )
 calamares_explain_skipped_modules( ${SKIPPED_MODULES} )
+
+feature_summary(
+    WHAT DISABLED_FEATURES
+    DESCRIPTION "The following features have been disabled:"
+    QUIET_ON_EMPTY
+)
+feature_summary(
+    WHAT OPTIONAL_PACKAGES_NOT_FOUND
+    DESCRIPTION "The following OPTIONAL packages were not found:"
+    QUIET_ON_EMPTY
+)
+feature_summary(
+    WHAT REQUIRED_PACKAGES_NOT_FOUND
+    FATAL_ON_MISSING_REQUIRED_PACKAGES
+    DESCRIPTION "The following REQUIRED packages were not found:"
+    QUIET_ON_EMPTY
+)

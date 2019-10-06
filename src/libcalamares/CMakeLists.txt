@@ -36,6 +36,9 @@ set( libSources
     locale/Lookup.cpp
     locale/TranslatableConfiguration.cpp
 
+    # Network service
+    network/Manager.cpp
+
     # Partition service
     partition/PartitionSize.cpp
 
@@ -51,12 +54,16 @@ set( libSources
     utils/Variant.cpp
     utils/Yaml.cpp
 )
-set( kdsagSources
+set( _kdsagSources
     kdsingleapplicationguard/kdsingleapplicationguard.cpp
     kdsingleapplicationguard/kdsharedmemorylocker.cpp
     kdsingleapplicationguard/kdtoolsglobal.cpp
     kdsingleapplicationguard/kdlockedsharedmemorypointer.cpp
 )
+set( kdsagSources "" )
+foreach( _s ${_kdsagSources} )
+    list( APPEND kdsagSources ${CMAKE_SOURCE_DIR}/3rdparty/${_s} )
+endforeach()
 mark_thirdparty_code( ${kdsagSources} )
 
 include_directories(
@@ -116,6 +123,7 @@ target_link_libraries( calamares
     LINK_PUBLIC
         ${YAMLCPP_LIBRARY}
         Qt5::Core
+        KF5::CoreAddons
         ${OPTIONAL_PUBLIC_LIBRARIES}
 )
 
@@ -189,6 +197,26 @@ if ( ECM_FOUND AND BUILD_TESTING )
             Qt5::Test
     )
     calamares_automoc( libcalamareslocaletest )
+
+    ecm_add_test(
+            network/Tests.cpp
+        TEST_NAME
+            libcalamaresnetworktest
+        LINK_LIBRARIES
+            calamares
+            Qt5::Test
+    )
+    calamares_automoc( libcalamaresnetworktest )
+
+    ecm_add_test(
+            modulesystem/Tests.cpp
+        TEST_NAME
+            libcalamaresmodulesystemtest
+        LINK_LIBRARIES
+            calamares
+            Qt5::Test
+    )
+    calamares_automoc( libcalamaresmodulesystemtest )
 endif()
 
 if( BUILD_TESTING )

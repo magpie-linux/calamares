@@ -112,7 +112,7 @@ ViewManager::ViewManager( QObject* parent )
     m_next = makeButton( m_widget, "go-next" );
     m_quit = makeButton( m_widget, "dialog-cancel" );
 
-    CALAMARES_RETRANSLATE( updateButtonLabels(); )
+    CALAMARES_RETRANSLATE_SLOT( &ViewManager::updateButtonLabels )
 
     QBoxLayout* bottomLayout = new QHBoxLayout;
     mainLayout->addLayout( bottomLayout );
@@ -140,7 +140,7 @@ ViewManager::ViewManager( QObject* parent )
         m_quit->setVisible( false );
     }
 
-    // onInstallationFailed( "Tile of Failure", "Body of Failure");  // for testing paste functionality
+    // onInstallationFailed( "Title of Failure", "Body of Failure");  // for testing paste functionality
 }
 
 
@@ -241,7 +241,7 @@ ViewManager::onInstallationFailed( const QString& message, const QString& detail
     msgBox->show();
 
     cDebug() << "Calamares will quit when the dialog closes.";
-    connect( msgBox, &QMessageBox::buttonClicked, [this,msgBox]( QAbstractButton* button ) {
+    connect( msgBox, &QMessageBox::buttonClicked, [msgBox]( QAbstractButton* button ) {
         if ( msgBox->buttonRole( button ) == QMessageBox::ButtonRole::YesRole )
         {
             // TODO: host and port should be configurable
@@ -254,9 +254,7 @@ ViewManager::onInstallationFailed( const QString& message, const QString& detail
             }
 
             // TODO: make the URL clickable, or copy it to the clipboard automatically
-            QMessageBox::critical(nullptr,
-                                pasteUrlTitle,
-                                pasteUrlMsg);
+            QMessageBox::critical( nullptr, pasteUrlTitle, pasteUrlMsg );
         }
         QApplication::quit();
     } );
@@ -277,12 +275,12 @@ ViewManager::onInitFailed( const QStringList& modules )
     {
         description.append( tr( "<br/>The following modules could not be loaded:" ) );
         QStringList details;
-        details << QLatin1Literal( "<ul>" );
+        details << QLatin1String( "<ul>" );
         for ( const auto& m : modules )
         {
-            details << QLatin1Literal( "<li>" ) << m << QLatin1Literal( "</li>" );
+            details << QLatin1String( "<li>" ) << m << QLatin1String( "</li>" );
         }
-        details << QLatin1Literal( "</ul>" );
+        details << QLatin1String( "</ul>" );
         detailString = details.join( QString() );
     }
 
